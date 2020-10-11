@@ -1,0 +1,10 @@
+The following authors have created the source code of
+"Python plug-in for OpenVPN" published and distributed by YANDEX LLC as
+the owner:
+
+Boris Lytochkin <lytboris@yandex-team.ru>
+Mikhail Arefiev <m-arefiev@yandex-team.ru>
+Artem Rudenko <artem@yandex-team.ru>
+
+This project is based on source code by Kaltashkin Eugene <zhecka@gmail.com>
+published at https://github.com/aborche/openvpn-plugin-python-proxy
