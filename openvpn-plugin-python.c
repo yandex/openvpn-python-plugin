@@ -150,8 +150,8 @@ PyObject* env_to_dict(struct openvpn_plugin_args_func_in const *args)
 	/* Build a Dict out of envp */
 	struct plugin_context *context = (struct plugin_context *)args->handle;
 	plugin_log_t log = context->log;
-	PyObject *envDict = PyDict_New();
-	PyObject *dKey, *dValue;
+	PyObject *env_dict = PyDict_New();
+	PyObject *d_key, *d_value;
 
 	for (const char **env_item = args->envp; *env_item != NULL; env_item++) {
 		char *env_key, *env_value;
@@ -161,15 +161,17 @@ PyObject* env_to_dict(struct openvpn_plugin_args_func_in const *args)
 			log(PLOG_ERR, PLUGIN_NAME, "Environment variable parse error, = is not found in '%s'", *env_item);
 			continue;
 		}
-		dKey = PyUnicode_FromString(env_key);
-		dValue = PyUnicode_FromString(env_value);
-		PyDict_SetItem(envDict, dKey, dValue);
+		d_key = PyUnicode_FromString(env_key);
+		d_value = PyUnicode_FromString(env_value);
+		PyDict_SetItem(env_dict, d_key, d_value);
+		Py_DECREF(d_key);
+		Py_DECREF(d_value);
 
 		// Python3's Objects/unicodeobject.c PU_FS does not steal the pointer
 		free(env_key);
 		free(env_value);
 	}
-	return envDict;
+	return env_dict;
 }
 
 PyObject* argv_to_list(struct openvpn_plugin_args_func_in const *args)
@@ -223,6 +225,7 @@ openvpn_plugin_func_v3(const int version,
 	PyDict_SetItemString(envarg, "__ARGV", argv_to_list(args));
 	int retval = python_from_int(
 	    python_call_function(&context->inv, func_name, 1, envarg));
+	Py_DECREF(envarg);
 	if (context->inv.last_error == PYTHON_OK) {
 		log(PLOG_DEBUG, PLUGIN_NAME, "Result of call: %ld", retval);
 		switch (retval) {
