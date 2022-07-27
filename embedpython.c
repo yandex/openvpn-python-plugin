@@ -20,9 +20,17 @@
 #include "embedpython.h"
 
 
-	int python_init(struct Python_Inventory* inv)
+int python_init(struct Python_Inventory* inv)
 {
 	inv->initialized = false;
+	PyStatus status;
+	PyPreConfig preconfig;
+	PyPreConfig_InitPythonConfig(&preconfig);
+	status = Py_PreInitialize(&preconfig);
+	if (PyStatus_Exception(status)) {
+		Py_ExitStatusException(status);
+	}
+
 	wchar_t* program_name = Py_DecodeLocale(inv->program_name, NULL);
 	Py_SetProgramName(program_name);
 	Py_Initialize();
